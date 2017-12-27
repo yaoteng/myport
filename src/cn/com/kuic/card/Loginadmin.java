@@ -27,6 +27,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -88,10 +89,14 @@ public class Loginadmin extends JFrameEx implements Runnable{
 	    private JTextField portYTextField=new JTextField();
 	    private JTextField portThetaField= new JTextField();
 	    private JTextField portednum = new JTextField();
+	    private JTextField controlernum = new JTextField();
+	    private JTextField detecternum = new JTextField();
 	    private List<String> commList = null;
 	    private StringBuffer sb = new StringBuffer();
 	    private String subs="",subscontain="",regionNo="",totalNo="",leftNo="",hexstringdata="",hexstringatline="",binarystringdata="",binarystringatline="",binarystringdatatobyte="",binarystringatlinetobyte="" ;
 	    private JComboBox commChoice = new JComboBox();
+	    private int mycontrolernum=0,mydetecternum=0;
+	    
 		
 		/*private JButton btnConnect = new JButton("\u8FDE\u63A5");
 		private JButton btnDisconnect = new JButton("\u65AD\u5F00");
@@ -161,7 +166,11 @@ public class Loginadmin extends JFrameEx implements Runnable{
 	 			statement=con.createStatement();
 	 			stmt1=con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
 	 			stmt2=con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
-	 			sql="CREATE TABLE IF NOT EXISTS carport (id INT PRIMARY KEY AUTO_INCREMENT , car_id VARCHAR(128) NOT NULL UNIQUE,portx INT,porty INT,theta DOUBLE)"
+	 			sql="CREATE TABLE IF NOT EXISTS carport (id INT PRIMARY KEY AUTO_INCREMENT , port_id VARCHAR(128) NOT NULL UNIQUE,portx INT,porty INT,theta DOUBLE)"
+	 					+ " ENGINE=InnoDB DEFAULT CHARSET=utf8 ";
+	 			result=statement.executeUpdate(sql);
+	 			
+	 			sql="CREATE TABLE IF NOT EXISTS mycarport (id INT PRIMARY KEY AUTO_INCREMENT , car_id VARCHAR(128) NOT NULL UNIQUE,port_id VARCHAR(128))"
 	 					+ " ENGINE=InnoDB DEFAULT CHARSET=utf8 ";
 	 			result=statement.executeUpdate(sql);
 	 		} catch (SQLException e2) {
@@ -228,35 +237,67 @@ public class Loginadmin extends JFrameEx implements Runnable{
 		portThetaField.setColumns(30);
 		portThetaField.setText("0");
 		
-		btnsetPosition.setBounds(480, 12, 100, 21);
+		
+		JLabel controlernumber = new JLabel("\u63a7\u5236\u5668\u53f7\u7801");
+		controlernumber.setBounds(400, 12, 108, 25);
+		pan5.add(controlernumber);
+		
+		controlernum.setBounds(508, 12, 66, 21);
+		pan5.add(controlernum);
+		controlernum.setColumns(10);
+		controlernum.setText("0");
+		
+		JLabel detecternumber = new JLabel("\u63a2\u6d4b\u5668\u53f7\u7801");
+		detecternumber.setBounds(578, 12, 108, 25);
+		pan5.add(detecternumber);
+		
+		detecternum.setBounds(686, 12, 66, 21);
+		pan5.add(detecternum);
+		detecternum.setColumns(10);
+		detecternum.setText("0");
+		btnsetPosition.setBounds(780, 12, 100, 21);
 		btnsetPosition.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				
+				int controlernumberfield=Integer.parseInt(controlernum.getText());
+				int detecternumberfield=Integer.parseInt(detecternum.getText());
 				
+				String contlnum=new DecimalFormat("00").format(controlernumberfield);
+				String denum=new DecimalFormat("00").format(detecternumberfield);
 				
-				int x= Integer.parseInt(portXTextField.getText());
-				int y=Integer.parseInt(portYTextField.getText());
-				double theta = Double.parseDouble(portThetaField.getText());
-				JLabelExt port= new JLabelExt(""+(portnumber+1),theta);
-				port.setFont(new Font("宋体",Font.PLAIN,20));
-				port.setBounds(x, y, 100, 100);
-				if((portnumber<37)||((portnumber>64)&&(portnumber<75))){
+				/*if((portnumber<37)||((portnumber>64)&&(portnumber<75))){
 					URL url= this.getClass().getResource("vip.jpg");
 					ImageIcon icon= new ImageIcon(url);
 					icon.setImage(icon.getImage().getScaledInstance(screenSize.width/80,screenSize.height/80, Image.SCALE_DEFAULT));
 					port.setIcon(icon);
 					port.setText("");
+				}*/
+				
+				
+				if(controlernumberfield!=0&&detecternumberfield!=0){
+					if(controlernumberfield==mycontrolernum&&detecternumberfield==mydetecternum){
+						ShowUtils.errorMessage("输入号码不能重复");
+					}else{
+						int x= Integer.parseInt(portXTextField.getText());
+						int y=Integer.parseInt(portYTextField.getText());
+						double theta = Double.parseDouble(portThetaField.getText());
+						JLabelExt port= new JLabelExt(contlnum+denum,theta);
+						port.setFont(new Font("宋体",Font.PLAIN,20));
+						port.setBounds(x, y, 100, 100);
+						myListener m= new myListener();
+						port.addMouseMotionListener(m);
+						port.addMouseListener(m);
+						
+						
+						pan3.add(port);
+					}
+				}else{
+					ShowUtils.errorMessage("输入的号码不能是零");
 				}
 				
-				myListener m= new myListener();
-				port.addMouseMotionListener(m);
-				port.addMouseListener(m);
-				
-				
-				pan3.add(port);
 				/*String carid= portnumber+"";
 				int x1=port.getBounds().x;
 				int y1=port.getBounds().y;
@@ -278,7 +319,8 @@ public class Loginadmin extends JFrameEx implements Runnable{
 				}*/
 				
 				    
-				
+				mycontrolernum=controlernumberfield;
+				mydetecternum=detecternumberfield;
 				Loginadmin.this.invalidate();
 				Loginadmin.this.repaint();
 				portnumber++;
@@ -577,7 +619,7 @@ btncarout.addActionListener(new ActionListener() {
 				rs=statement.executeQuery(sql);
 				int i=0;
 				while(rs.next()){
-					String car_id = rs.getString("car_id");
+					String car_id = rs.getString("port_id");
 					double theta = rs.getDouble("theta");
 					JLabelExt port1=new JLabelExt(""+car_id,theta);
 					int x1=rs.getInt("portx");
@@ -734,11 +776,11 @@ btncarout.addActionListener(new ActionListener() {
 				int x1=port.getBounds().x;
 				int y1=port.getBounds().y;
 				double theta = port.getTheta();
-				sql="Select portx,porty,theta from carport where car_id='"+i+"'";
+				sql="Select portx,porty,theta from carport where port_id='"+i+"'";
 				try {
 					rs=statement.executeQuery(sql);
 					if(rs.next()){
-						sql="Update carport set portx="+x1+", porty="+y1+",theta="+theta+" where car_id='"+i+"'";
+						sql="Update carport set portx="+x1+", porty="+y1+",theta="+theta+" where port_id='"+i+"'";
 						try {
 							result=statement.executeUpdate(sql);
 						} catch (SQLException e2) {
@@ -747,7 +789,7 @@ btncarout.addActionListener(new ActionListener() {
 						}
 					}else{
 						
-						sql="Insert into carport(car_id,portx,porty,theta) values ('"+i+"',"+x1+","+y1+","+theta+")";
+						sql="Insert into carport(port_id,portx,porty,theta) values ('"+i+"',"+x1+","+y1+","+theta+")";
 						System.out.println(sql);
 						result= statement.executeUpdate(sql);
 					}
