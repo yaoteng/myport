@@ -17,7 +17,7 @@ public class myJDBC {
 	
     static String url = "jdbc:mysql://localhost:3306/test";
     static String name = "root";
-    static String password = "root";
+    static String password = "";
     static Connection conn = null;
     private static myJDBC jdbcUtilSingle = null;
  

@@ -105,6 +105,7 @@ public class Loginadmin extends JFrameEx implements Runnable {
 	 * buttonCleanlogin=new JButton("\u6e05\u7a7a\u767b\u8bb0\u8868");
 	 */
 	private JButton btnsetPosition = new JButton("\u8bbe\u7f6e\u505c\u8f66\u4f4d");
+	private JButton btncacelPosition=new JButton("\u5220\u9664\u505c\u8f66\u4f4d");
 	private JButton btncararrived = new JButton("\u8f66\u5df2\u5165\u4f4d");
 	private JButton btncarout = new JButton("\u8f66\u5df2\u51fa\u4f4d");
 	private JButton btnFileChooser = new JButton("\u8bf7\u9009\u62e9\u5730\u56fe\u6587\u4ef6");
@@ -114,12 +115,12 @@ public class Loginadmin extends JFrameEx implements Runnable {
 	private SortTable tableEPCData = null;
 	private myJDBC myjdbc = myJDBC.getInitJDBCUtil();
 	private Connection con = null;
-	private Statement statement = null, stmt1 = null, stmt2 = null;
+	private Statement statement = null, stmt1 = null, stmt2 = null,stmt3=null;
 	private String sql = null;
 	private String EPCStr;
 	private String nickname;
 	private int result = 0;
-	private ResultSet rs, rs1, rs2 = null;
+	private ResultSet rs, rs1, rs2,rs3 = null;
 	private Date time;
 	private String timestr;
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -165,6 +166,7 @@ public class Loginadmin extends JFrameEx implements Runnable {
 				statement = con.createStatement();
 				stmt1 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 				stmt2 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+				stmt3 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 				sql = "CREATE TABLE IF NOT EXISTS carport (id INT PRIMARY KEY AUTO_INCREMENT , port_id VARCHAR(128) NOT NULL UNIQUE,portx INT,porty INT,theta DOUBLE)"
 						+ " ENGINE=InnoDB DEFAULT CHARSET=utf8 ";
 				result = statement.executeUpdate(sql);
@@ -282,12 +284,12 @@ public class Loginadmin extends JFrameEx implements Runnable {
 						pan3.add(port);
 						sql = "Select car_id from mycarport where port_id='" + portnumber + "'";
 						try {
-							rs = statement.executeQuery(sql);
-							if (rs.next()) {
+							rs2 = stmt3.executeQuery(sql);
+							if (rs2.next()) {
 								sql = "Update mycarport set car_id=" + contlnum + denum + " where port_id='"
 										+ portnumber + "'";
 								try {
-									result = statement.executeUpdate(sql);
+									result = stmt3.executeUpdate(sql);
 								} catch (SQLException e2) {
 									// TODO Auto-generated catch block
 									e2.printStackTrace();
@@ -297,7 +299,7 @@ public class Loginadmin extends JFrameEx implements Runnable {
 								sql = "Insert into mycarport(car_id,port_id) values ('" + contlnum + denum + "','"
 										+ portnumber + "')";
 								System.out.println(sql);
-								result = statement.executeUpdate(sql);
+								result = stmt3.executeUpdate(sql);
 							}
 						} catch (SQLException e1) {
 							// TODO Auto-generated catch block
@@ -333,6 +335,8 @@ public class Loginadmin extends JFrameEx implements Runnable {
 		});
 		pan5.add(btnsetPosition);
 
+		
+	
 		mySerialPortconfig.setBounds(10, 42, 200, 21);
 		mySerialPortconfig.addActionListener(new ActionListener() {
 
@@ -1072,64 +1076,109 @@ public class Loginadmin extends JFrameEx implements Runnable {
 									StringBuffer sbuilderatline = new StringBuffer(binarystringatlinetobyte);
 									binarystringdatatobyte = sbuilderdata.reverse().toString();
 									binarystringatlinetobyte = sbuilderatline.reverse().toString();
-									for (int j = 0; j < 8; j++) {
-
+									for(int j=0;j<8;j++){
+										
+									    String num=new DecimalFormat("00").format(i+j+1);
+									    String regionnum=new DecimalFormat("0").format(Integer.parseInt(regionNo,16));
 										char a = binarystringdatatobyte.charAt(j);
 										char b = binarystringatlinetobyte.charAt(j);
-										if (Integer.parseInt(String.valueOf(b)) == 1) {
-											if (Integer.parseInt(String.valueOf(a)) == 0) {
-												if ((j + i + alltotalNo) < 28) {
-													JLabelExt port = (JLabelExt) pan7
-															.getComponent(j + i + alltotalNo + 36);
-													ImageIcon icon = new ImageIcon("cararrived.jpg");
-													icon.setImage(
-															icon.getImage().getScaledInstance(screenWidth / 8 / 10,
-																	screenHeight / 8 / 10, Image.SCALE_DEFAULT));
-													port.setIcon(icon);
-													port.setText("");
-													pan7.remove(j + i + alltotalNo + 36);
-													pan7.add(port, j + i + alltotalNo + 36);
-												} else {
-													JLabelExt port = (JLabelExt) pan7
-															.getComponent(j + i + alltotalNo + 36 + 10);
-													ImageIcon icon = new ImageIcon("cararrived.jpg");
-													icon.setImage(
-															icon.getImage().getScaledInstance(screenWidth / 8 / 10,
-																	screenHeight / 8 / 10, Image.SCALE_DEFAULT));
-													port.setIcon(icon);
-													port.setText("");
-													pan7.remove(i + j + alltotalNo + 36 + 10);
-													pan7.add(port, i + j + alltotalNo + 36 + 10);
-												}
-
-											} else {
-												if ((j + i + alltotalNo) < 28) {
-													JLabelExt port = (JLabelExt) pan7
-															.getComponent(j + i + alltotalNo + 36);
-													ImageIcon icon = new ImageIcon("carport.jpg");
-													icon.setImage(
-															icon.getImage().getScaledInstance(screenWidth / 8 / 10,
-																	screenHeight / 8 / 10, Image.SCALE_DEFAULT));
-													port.setIcon(icon);
-													port.setText("");
-													pan7.remove(j + i + alltotalNo + 36);
-													pan7.add(port, j + i + alltotalNo + 36);
-												} else {
-													JLabelExt port = (JLabelExt) pan7
-															.getComponent(j + i + alltotalNo + 36 + 10);
-													ImageIcon icon = new ImageIcon("carport.jpg");
-													icon.setImage(
-															icon.getImage().getScaledInstance(screenWidth / 8 / 10,
-																	screenHeight / 8 / 10, Image.SCALE_DEFAULT));
-													port.setIcon(icon);
-													port.setText("");
-													pan7.remove(i + j + alltotalNo + 36 + 10);
-													pan7.add(port, i + j + alltotalNo + 36 + 10);
-												}
+										try {
+											sql = "SELECT port_id From mycarport where car_id='"+regionnum+num+"'";
+											rs2 = stmt2.executeQuery(sql);
+		                                    if(rs2.next()){
+		                                    	String port_id=rs2.getString("port_id");
+		                                    	int port_id_num= Integer.parseInt(port_id);
+		                                    	if(Integer.parseInt(String.valueOf(b))==1){
+													if(Integer.parseInt(String.valueOf(a))==0){
+														JLabelExt port =(JLabelExt)pan7.getComponent(port_id_num);
+														URL url=this.getClass().getResource("cararrived.jpg");
+														ImageIcon icon= new ImageIcon(url);
+														icon.setImage(icon.getImage().getScaledInstance(screenSize.width/80,screenSize.height/80, Image.SCALE_DEFAULT));
+														port.setIcon(icon);
+														port.setText("");
+														pan7.remove(port_id_num);
+														pan7.add(port, port_id_num);
+														
+														pan7.repaint();
+														
+														
+														/*if((j+i+alltotalNo)<28){
+															
+															
+															
+																
+																JLabelExt port =(JLabelExt)pan7.getComponent(j+i+alltotalNo+37);
+																URL url=this.getClass().getResource("cararrived.jpg");
+																ImageIcon icon= new ImageIcon(url);
+																icon.setImage(icon.getImage().getScaledInstance(screenSize.width/80,screenSize.height/80, Image.SCALE_DEFAULT));
+																port.setIcon(icon);
+																port.setText("");
+																pan7.remove(j+i+alltotalNo+37);
+																pan7.add(port, j+i+alltotalNo+37);
+																
+																pan7.repaint();
+																
+															
+														}else{
+															JLabelExt port =(JLabelExt)pan7.getComponent(j+i+alltotalNo+37+10);
+															URL url=this.getClass().getResource("cararrived.jpg");
+															ImageIcon icon= new ImageIcon(url);
+															icon.setImage(icon.getImage().getScaledInstance(screenSize.width/80,screenSize.height/80, Image.SCALE_DEFAULT));
+															port.setIcon(icon);
+															port.setText("");
+															pan7.remove(i+j+alltotalNo+37+10);
+															pan7.add(port, i+j+alltotalNo+37+10);
+															pan7.repaint();
+															
+														}*/
+														
+													}else{
+														JLabelExt port =(JLabelExt)pan7.getComponent(port_id_num);
+														URL url=this.getClass().getResource("carport.jpg");
+														ImageIcon icon= new ImageIcon(url);
+														icon.setImage(icon.getImage().getScaledInstance(screenSize.width/80,screenSize.height/80, Image.SCALE_DEFAULT));
+														port.setIcon(icon);
+														port.setText("");
+														pan7.remove(port_id_num);
+														pan7.add(port, port_id_num);
+														pan7.repaint();
+														/*if((j+i+alltotalNo)<28){
+															JLabelExt port =(JLabelExt)pan7.getComponent(j+i+alltotalNo+37);
+															URL url=this.getClass().getResource("carport.jpg");
+															ImageIcon icon= new ImageIcon(url);
+															icon.setImage(icon.getImage().getScaledInstance(screenSize.width/80,screenSize.height/80, Image.SCALE_DEFAULT));
+															port.setIcon(icon);
+															port.setText("");
+															pan7.remove(j+i+alltotalNo+37);
+															pan7.add(port, j+i+alltotalNo+37);
+															pan7.repaint();
+															
+														}else{
+															JLabelExt port =(JLabelExt)pan7.getComponent(j+i+alltotalNo+37+10);
+															URL url=this.getClass().getResource("carport.jpg");
+															ImageIcon icon= new ImageIcon(url);
+															icon.setImage(icon.getImage().getScaledInstance(screenSize.width/80,screenSize.height/80, Image.SCALE_DEFAULT));
+															port.setIcon(icon);
+															port.setText("");
+															pan7.remove(i+j+alltotalNo+37+10);
+															pan7.add(port, i+j+alltotalNo+37+10);
+															pan7.repaint();
+															
+														}*/
+													}
 											}
-										}
+		                                    }									
 
-									}
+										} catch (SQLException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
+										
+									
+								
+									
+									
+								}
 								}
 								System.out.println("区域控制器：" + regionNo + "总车位：" + totalNo + "剩余车位：" + leftNo + "数据："
 										+ binarystringdata + "在线：" + binarystringdata);
