@@ -105,7 +105,7 @@ public class Loginadmin extends JFrameEx implements Runnable {
 	 * buttonCleanlogin=new JButton("\u6e05\u7a7a\u767b\u8bb0\u8868");
 	 */
 	private JButton btnsetPosition = new JButton("\u8bbe\u7f6e\u505c\u8f66\u4f4d");
-	private JButton btncacelPosition=new JButton("\u5220\u9664\u505c\u8f66\u4f4d");
+	private JButton btncancelPosition=new JButton("\u5220\u9664\u505c\u8f66\u4f4d");
 	private JButton btncararrived = new JButton("\u8f66\u5df2\u5165\u4f4d");
 	private JButton btncarout = new JButton("\u8f66\u5df2\u51fa\u4f4d");
 	private JButton btnFileChooser = new JButton("\u8bf7\u9009\u62e9\u5730\u56fe\u6587\u4ef6");
@@ -116,7 +116,7 @@ public class Loginadmin extends JFrameEx implements Runnable {
 	private myJDBC myjdbc = myJDBC.getInitJDBCUtil();
 	private Connection con = null;
 	private Statement statement = null, stmt1 = null, stmt2 = null,stmt3=null;
-	private String sql = null;
+	private String sql ,sql2= null;
 	private String EPCStr;
 	private String nickname;
 	private int result = 0;
@@ -167,11 +167,11 @@ public class Loginadmin extends JFrameEx implements Runnable {
 				stmt1 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 				stmt2 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 				stmt3 = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-				sql = "CREATE TABLE IF NOT EXISTS carport (id INT PRIMARY KEY AUTO_INCREMENT , port_id VARCHAR(128) NOT NULL UNIQUE,portx INT,porty INT,theta DOUBLE)"
+				sql = "CREATE TABLE IF NOT EXISTS carport (id INT PRIMARY KEY AUTO_INCREMENT , port_id INT NOT NULL UNIQUE,portx INT,porty INT,theta DOUBLE)"
 						+ " ENGINE=InnoDB DEFAULT CHARSET=utf8 ";
 				result = statement.executeUpdate(sql);
 
-				sql = "CREATE TABLE IF NOT EXISTS mycarport (id INT PRIMARY KEY AUTO_INCREMENT , car_id VARCHAR(128),port_id VARCHAR(128) NOT NULL UNIQUE)"
+				sql = "CREATE TABLE IF NOT EXISTS mycarport (id INT PRIMARY KEY AUTO_INCREMENT , car_id VARCHAR(128),port_id INT NOT NULL UNIQUE)"
 						+ " ENGINE=InnoDB DEFAULT CHARSET=utf8 ";
 				result = statement.executeUpdate(sql);
 			} catch (SQLException e2) {
@@ -281,26 +281,28 @@ public class Loginadmin extends JFrameEx implements Runnable {
 						port.addMouseMotionListener(m);
 						port.addMouseListener(m);
 
-						pan3.add(port);
-						sql = "Select car_id from mycarport where port_id='" + portnumber + "'";
+						
+						sql = "Select port_id from mycarport where car_id='" + contlnum + denum + "'";
 						try {
 							rs2 = stmt3.executeQuery(sql);
-							if (rs2.next()) {
-								sql = "Update mycarport set car_id=" + contlnum + denum + " where port_id='"
-										+ portnumber + "'";
-								try {
-									result = stmt3.executeUpdate(sql);
-								} catch (SQLException e2) {
-									// TODO Auto-generated catch block
-									e2.printStackTrace();
-								}
-							} else {
-
-								sql = "Insert into mycarport(car_id,port_id) values ('" + contlnum + denum + "','"
-										+ portnumber + "')";
-								System.out.println(sql);
-								result = stmt3.executeUpdate(sql);
-							}
+							
+							if (!rs2.next()) {
+							    sql="Select port_id from carport";
+							    rs3=stmt3.executeQuery(sql);
+							    while(rs3.next()){
+							    	int port_id= rs3.getInt("port_id");
+							    	
+							    	if(portnumber==port_id){
+							    		portnumber++;
+							    	}
+							    }
+								sql2 = "Insert into mycarport(car_id,port_id) values ('" + contlnum + denum + "',"
+										+ portnumber + ")";
+								System.out.println(sql2);
+								result = statement.executeUpdate(sql2);
+								pan3.add(port,portnumber);
+								
+							} 
 						} catch (SQLException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
@@ -330,12 +332,102 @@ public class Loginadmin extends JFrameEx implements Runnable {
 				mydetecternum = detecternumberfield;
 				Loginadmin.this.invalidate();
 				Loginadmin.this.repaint();
-				portnumber++;
+				
 			}
 		});
 		pan5.add(btnsetPosition);
 
-		
+		btncancelPosition.setBounds(900, 12, 100, 21);
+		btncancelPosition.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+
+				int controlernumberfield = Integer.parseInt(controlernum.getText());
+				int detecternumberfield = Integer.parseInt(detecternum.getText());
+
+				String contlnum = new DecimalFormat("00").format(controlernumberfield);
+				String denum = new DecimalFormat("00").format(detecternumberfield);
+
+				/*
+				 * if((portnumber<37)||((portnumber>64)&&(portnumber<75))){ URL
+				 * url= this.getClass().getResource("vip.jpg"); ImageIcon icon=
+				 * new ImageIcon(url);
+				 * icon.setImage(icon.getImage().getScaledInstance(screenSize.
+				 * width/80,screenSize.height/80, Image.SCALE_DEFAULT));
+				 * port.setIcon(icon); port.setText(""); }
+				 */
+
+				if (controlernumberfield != 0 && detecternumberfield != 0) {
+					
+						/*int x = Integer.parseInt(portXTextField.getText());
+						int y = Integer.parseInt(portYTextField.getText());
+						double theta = Double.parseDouble(portThetaField.getText());
+						JLabelExt port = new JLabelExt(contlnum + denum, theta);
+						port.setFont(new Font("宋体", Font.PLAIN, 20));
+						port.setBounds(x, y, 100, 100);
+						
+
+						pan3.add(port);*/
+						
+						sql= "Select port_id from mycarport where car_id='"+contlnum+denum+"'";
+						
+						try {
+							rs3=stmt3.executeQuery(sql);
+							if(rs3.next()){
+								int port_id=rs3.getInt("port_id");
+						
+								JLabelExt port=(JLabelExt)pan3.getComponent(port_id);
+								port.setText("");
+								port.setIcon(null);
+								pan3.remove(port_id);
+								pan3.add(port,port_id);
+								pan3.repaint();
+							}
+						} catch (SQLException e2) {
+							// TODO Auto-generated catch block
+							e2.printStackTrace();
+						}
+						
+						sql = "DELETE from mycarport where car_id='" + contlnum+ denum+"'";
+						try {
+							result= statement.executeUpdate(sql);
+							
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						
+					
+				} else {
+					ShowUtils.errorMessage("输入的号码不能是零");
+				}
+
+				/*
+				 * String carid= portnumber+""; int x1=port.getBounds().x; int
+				 * y1=port.getBounds().y; try {
+				 * 
+				 * sql="Insert into carport(car_id,portx,porty) values ('"+carid
+				 * +"',"+x1+","+y1+")"; System.out.println(sql); result=
+				 * statement.executeUpdate(sql);
+				 * 
+				 * } catch (SQLException e1) { // TODO Auto-generated catch
+				 * block sql="Update carport set portx="+x1+", porty="
+				 * +y1+" where car_id='"+carid+"'"; try {
+				 * result=statement.executeUpdate(sql); } catch (SQLException
+				 * e2) { // TODO Auto-generated catch block
+				 * e2.printStackTrace(); } }
+				 */
+
+				mycontrolernum = controlernumberfield;
+				mydetecternum = detecternumberfield;
+				Loginadmin.this.invalidate();
+				Loginadmin.this.repaint();
+				
+			}
+		});
+		pan5.add(btncancelPosition);
 	
 		mySerialPortconfig.setBounds(10, 42, 200, 21);
 		mySerialPortconfig.addActionListener(new ActionListener() {
@@ -549,7 +641,7 @@ public class Loginadmin extends JFrameEx implements Runnable {
 		 * } } });
 		 */
 
-		try {
+		/*try {
 			sql = "SELECT car_id,theta,portx,porty From carport,mycarport where carport.port_id=mycarport.port_id";
 			rs = statement.executeQuery(sql);
 			int i = 0;
@@ -564,6 +656,78 @@ public class Loginadmin extends JFrameEx implements Runnable {
 				port1.setBounds(x1, y1, screenWidth / 8, screenHeight / 8);
 				port1.setFont(new Font("宋体", Font.PLAIN, 20));
 
+				myListener m = new myListener();
+				port1.addMouseMotionListener(m);
+				port1.addMouseListener(m);
+
+				
+				pan3.add(port1, i);
+				i++;
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+
+		try {
+			sql = "SELECT theta,portx,porty From carport";
+			rs = statement.executeQuery(sql);
+			int i = 0;
+			while (rs.next()) {
+				/*String car_id = rs.getString("car_id");*/
+				double theta = rs.getDouble("theta");
+				// System.out.println();
+				
+				JLabelExt port1 = new JLabelExt("", theta);
+				int x1 = rs.getInt("portx");
+				int y1 = rs.getInt("porty");
+				port1.setBounds(x1, y1, screenWidth / 8, screenHeight / 8);
+				port1.setFont(new Font("宋体", Font.PLAIN, 20));
+                sql= "SELECT car_id from mycarport where port_id="+i+"";
+                rs2=stmt2.executeQuery(sql);
+                if(rs2.next()){
+                	String car_id = rs2.getString("car_id");
+                	port1.setText(car_id);
+                }
+                myListener m = new myListener();
+        		port1.addMouseMotionListener(m);
+        		port1.addMouseListener(m);
+                
+				pan3.add(port1, i);
+				i++;
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+		
+		try {
+			sql = "SELECT theta,portx,porty From carport";
+			rs = statement.executeQuery(sql);
+			int i = 0;
+			while (rs.next()) {
+				/*String car_id = rs.getString("car_id");*/
+				double theta = rs.getDouble("theta");
+				// System.out.println();
+				
+				JLabelExt port1 = new JLabelExt("", theta);
+				int x1 = rs.getInt("portx");
+				int y1 = rs.getInt("porty");
+				port1.setBounds(x1, y1, screenWidth / 8, screenHeight / 8);
+				port1.setFont(new Font("宋体", Font.PLAIN, 20));
+                sql= "SELECT car_id from mycarport where port_id="+i+"";
+                rs2=stmt2.executeQuery(sql);
+                if(rs2.next()){
+                	String car_id = rs2.getString("car_id");
+                	port1.setText(car_id);
+                }
+                
+                
 				pan7.add(port1, i);
 				i++;
 			}
@@ -701,12 +865,12 @@ public class Loginadmin extends JFrameEx implements Runnable {
 				int x1 = port.getBounds().x;
 				int y1 = port.getBounds().y;
 				double theta = port.getTheta();
-				sql = "Select portx,porty,theta from carport where port_id='" + i + "'";
+				sql = "Select portx,porty,theta from carport where port_id=" + i + "";
 				try {
 					rs = statement.executeQuery(sql);
 					if (rs.next()) {
 						sql = "Update carport set portx=" + x1 + ", porty=" + y1 + ",theta=" + theta
-								+ " where port_id='" + i + "'";
+								+ " where port_id=" + i + "";
 						try {
 							result = statement.executeUpdate(sql);
 						} catch (SQLException e2) {
@@ -724,7 +888,7 @@ public class Loginadmin extends JFrameEx implements Runnable {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				sql = "Select car_id from mycarport where port_id='" + i + "'";
+				sql = "Select car_id from mycarport where port_id=" + i + "";
 				try {
 					rs2 = stmt2.executeQuery(sql);
 					if(rs2.next()){
@@ -1021,6 +1185,30 @@ public class Loginadmin extends JFrameEx implements Runnable {
 							int startcontain = subs.indexOf("FEFBFA");
 							int alltotalNo = 0;
 							int alltotalleft = 0;
+							
+							/*try {
+								sql = "SELECT car_id,theta,portx,porty From carport,mycarport where carport.port_id=mycarport.port_id";
+								rs = statement.executeQuery(sql);
+								int i = 0;
+								while (rs.next()) {
+									String car_id = rs.getString("car_id");
+
+									// System.out.println();
+									double theta = rs.getDouble("theta");
+									JLabelExt port1 = new JLabelExt(new DecimalFormat("0000").format(Integer.parseInt(car_id)), theta);
+									int x1 = rs.getInt("portx");
+									int y1 = rs.getInt("porty");
+									port1.setBounds(x1, y1, screenWidth / 8, screenHeight / 8);
+									port1.setFont(new Font("宋体", Font.PLAIN, 20));
+                                    pan7.remove(i);
+									pan7.add(port1, i);
+									i++;
+								}
+
+							} catch (SQLException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}*/
 							while (startcontain > 0) {
 
 								subscontain = subs.substring(startcontain, startcontain + 46);
@@ -1079,25 +1267,25 @@ public class Loginadmin extends JFrameEx implements Runnable {
 									for(int j=0;j<8;j++){
 										
 									    String num=new DecimalFormat("00").format(i+j+1);
-									    String regionnum=new DecimalFormat("0").format(Integer.parseInt(regionNo,16));
+									    String regionnum=new DecimalFormat("00").format(Integer.parseInt(regionNo,16));
 										char a = binarystringdatatobyte.charAt(j);
 										char b = binarystringatlinetobyte.charAt(j);
 										try {
 											sql = "SELECT port_id From mycarport where car_id='"+regionnum+num+"'";
 											rs2 = stmt2.executeQuery(sql);
 		                                    if(rs2.next()){
-		                                    	String port_id=rs2.getString("port_id");
-		                                    	int port_id_num= Integer.parseInt(port_id);
+		                                    	int port_id=rs2.getInt("port_id");
+		                                    	
 		                                    	if(Integer.parseInt(String.valueOf(b))==1){
 													if(Integer.parseInt(String.valueOf(a))==0){
-														JLabelExt port =(JLabelExt)pan7.getComponent(port_id_num);
+														JLabelExt port =(JLabelExt)pan7.getComponent(port_id);
 														URL url=this.getClass().getResource("cararrived.jpg");
 														ImageIcon icon= new ImageIcon(url);
 														icon.setImage(icon.getImage().getScaledInstance(screenSize.width/80,screenSize.height/80, Image.SCALE_DEFAULT));
 														port.setIcon(icon);
 														port.setText("");
-														pan7.remove(port_id_num);
-														pan7.add(port, port_id_num);
+														pan7.remove(port_id);
+														pan7.add(port, port_id);
 														
 														pan7.repaint();
 														
@@ -1133,14 +1321,14 @@ public class Loginadmin extends JFrameEx implements Runnable {
 														}*/
 														
 													}else{
-														JLabelExt port =(JLabelExt)pan7.getComponent(port_id_num);
+														JLabelExt port =(JLabelExt)pan7.getComponent(port_id);
 														URL url=this.getClass().getResource("carport.jpg");
 														ImageIcon icon= new ImageIcon(url);
 														icon.setImage(icon.getImage().getScaledInstance(screenSize.width/80,screenSize.height/80, Image.SCALE_DEFAULT));
 														port.setIcon(icon);
 														port.setText("");
-														pan7.remove(port_id_num);
-														pan7.add(port, port_id_num);
+														pan7.remove(port_id);
+														pan7.add(port, port_id);
 														pan7.repaint();
 														/*if((j+i+alltotalNo)<28){
 															JLabelExt port =(JLabelExt)pan7.getComponent(j+i+alltotalNo+37);

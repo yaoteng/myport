@@ -443,20 +443,25 @@ public class Login extends JFrameEx implements Runnable {
 		 */
 
 		try {
-			sql = "SELECT car_id,theta,portx,porty From carport,mycarport where carport.port_id=mycarport.port_id";
+			sql = "SELECT theta,portx,porty From carport";
 			rs = statement.executeQuery(sql);
 			int i = 0;
 			while (rs.next()) {
-				String car_id = rs.getString("car_id");
-
-				// System.out.println();
+				/*String car_id = rs.getString("car_id");*/
 				double theta = rs.getDouble("theta");
-				JLabelExt port1 = new JLabelExt(new DecimalFormat("0000").format(Integer.parseInt(car_id)), theta);
+				// System.out.println();
+				
+				JLabelExt port1 = new JLabelExt("", theta);
 				int x1 = rs.getInt("portx");
 				int y1 = rs.getInt("porty");
 				port1.setBounds(x1, y1, screenWidth / 8, screenHeight / 8);
 				port1.setFont(new Font("宋体", Font.PLAIN, 20));
-
+                sql= "SELECT car_id from mycarport where port_id='"+i+"'";
+                rs2=stmt2.executeQuery(sql);
+                if(rs2.next()){
+                	String car_id = rs2.getString("car_id");
+                	port1.setText(car_id);
+                }
 				pan7.add(port1, i);
 				i++;
 			}
@@ -850,20 +855,68 @@ public class Login extends JFrameEx implements Runnable {
 							int startcontain = subs.indexOf("FEFBFA");
 							int alltotalNo = 0;
 							int alltotalleft = 0;
-							/*
-							 * for(int k=0;k<pan7.getComponentCount();k++){
-							 * JLabelExt port = (JLabelExt)pan7.getComponent(k);
-							 * port.setText("" + (k+1)); port.setFont(new
-							 * Font("宋体",Font.PLAIN,20)); port.setIcon(null);
-							 * if((k<37)||((k>64)&&(k<75))){ URL
-							 * urlvip=Login.class.getResource("vip.jpg");
-							 * ImageIcon icon= new ImageIcon(urlvip);
-							 * icon.setImage(icon.getImage().getScaledInstance(
-							 * screenSize.width/80,screenSize.height/80,
-							 * Image.SCALE_DEFAULT)); port.setIcon(icon);
-							 * port.setText(""); } pan7.add(port,k);
-							 * pan7.repaint(); }
-							 */
+
+							/*try {
+								sql = "SELECT car_id,theta,portx,porty From carport,mycarport where carport.port_id=mycarport.port_id";
+								rs = statement.executeQuery(sql);
+								int i = 0;
+								while (rs.next()) {
+									String car_id = rs.getString("car_id");
+
+									// System.out.println();
+									double theta = rs.getDouble("theta");
+									JLabelExt port1 = new JLabelExt(new DecimalFormat("0000").format(Integer.parseInt(car_id)), theta);
+									int x1 = rs.getInt("portx");
+									int y1 = rs.getInt("porty");
+									port1.setBounds(x1, y1, screenWidth / 8, screenHeight / 8);
+									port1.setFont(new Font("宋体", Font.PLAIN, 20));
+                            
+									pan7.add(port1, i);
+									i++;
+								}
+
+							} catch (SQLException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}*/
+                            
+							
+							for(int k=0;k<pan7.getComponentCount();k++){
+								sql = "SELECT car_id From mycarport where port_id='"+k+"'";
+								rs = statement.executeQuery(sql);
+								while (rs.next()) {
+									JLabelExt port = (JLabelExt)pan7.getComponent(k);
+									String car_id = rs.getString("car_id");
+									port.setText(car_id);
+									port.setIcon(null);
+									// System.out.println();
+									/*double theta = rs.getDouble("theta");
+									JLabelExt port1 = new JLabelExt(new DecimalFormat("0000").format(Integer.parseInt(car_id)), theta);
+									int x1 = rs.getInt("portx");
+									int y1 = rs.getInt("porty");
+									port1.setBounds(x1, y1, screenWidth / 8, screenHeight / 8);*/
+									port.setFont(new Font("宋体", Font.PLAIN, 20));
+                            
+									pan7.add(port, k);
+									
+									pan7.repaint();
+								}
+								
+								
+								/*port.setText("" + (k+1));
+								port.setFont(new Font("宋体",Font.PLAIN,20));
+								port.setIcon(null);
+								if((k<37)||((k>64)&&(k<75))){
+									URL urlvip=Login.class.getResource("vip.jpg");
+									ImageIcon icon= new ImageIcon(urlvip);
+									icon.setImage(icon.getImage().getScaledInstance(screenSize.width/80,screenSize.height/80, Image.SCALE_DEFAULT));
+									port.setIcon(icon);
+									port.setText("");
+									pan7.add(port,k);
+								}
+								*/
+								
+							}
 							while (startcontain > 0) {
 
 								subscontain = subs.substring(startcontain, startcontain + 46);
@@ -924,13 +977,12 @@ public class Login extends JFrameEx implements Runnable {
 									binarystringdatatobyte = sbuilderdata.reverse().toString();
 									binarystringatlinetobyte = sbuilderatline.reverse().toString();
 
-								
 									for (int j = 0; j < 8; j++) {
 
-										String num = new DecimalFormat("00").format(i + j+1);
-										String regionnum = new DecimalFormat("0")
+										String num = new DecimalFormat("00").format(i + j + 1);
+										String regionnum = new DecimalFormat("00")
 												.format(Integer.parseInt(regionNo, 16));
-										System.out.println(regionnum+num);
+										System.out.println(regionnum + num);
 										char a = binarystringdatatobyte.charAt(j);
 										char b = binarystringatlinetobyte.charAt(j);
 										try {
