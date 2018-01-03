@@ -106,6 +106,7 @@ public class Loginadmin extends JFrameEx implements Runnable {
 	 */
 	private JButton btnsetPosition = new JButton("\u8bbe\u7f6e\u505c\u8f66\u4f4d");
 	private JButton btncancelPosition=new JButton("\u5220\u9664\u505c\u8f66\u4f4d");
+	private JButton btndeleteAllPosition=new JButton("\u5220\u9664\u6240\u6709\u70b9\u4f4d");
 	private JButton btncararrived = new JButton("\u8f66\u5df2\u5165\u4f4d");
 	private JButton btncarout = new JButton("\u8f66\u5df2\u51fa\u4f4d");
 	private JButton btnFileChooser = new JButton("\u8bf7\u9009\u62e9\u5730\u56fe\u6587\u4ef6");
@@ -229,23 +230,23 @@ public class Loginadmin extends JFrameEx implements Runnable {
 		portThetaField.setText("0");
 
 		JLabel controlernumber = new JLabel("\u63a7\u5236\u5668\u53f7\u7801");
-		controlernumber.setBounds(400, 12, 108, 25);
+		controlernumber.setBounds(420, 12, 108, 25);
 		pan5.add(controlernumber);
 
-		controlernum.setBounds(508, 12, 66, 21);
+		controlernum.setBounds(528, 12, 66, 21);
 		pan5.add(controlernum);
 		controlernum.setColumns(10);
 		controlernum.setText("0");
 
 		JLabel detecternumber = new JLabel("\u63a2\u6d4b\u5668\u53f7\u7801");
-		detecternumber.setBounds(578, 12, 108, 25);
+		detecternumber.setBounds(598, 12, 108, 25);
 		pan5.add(detecternumber);
 
-		detecternum.setBounds(686, 12, 66, 21);
+		detecternum.setBounds(706, 12, 66, 21);
 		pan5.add(detecternum);
 		detecternum.setColumns(10);
 		detecternum.setText("0");
-		btnsetPosition.setBounds(780, 12, 100, 21);
+		btnsetPosition.setBounds(800, 12, 100, 21);
 		btnsetPosition.addActionListener(new ActionListener() {
 
 			@Override
@@ -337,7 +338,7 @@ public class Loginadmin extends JFrameEx implements Runnable {
 		});
 		pan5.add(btnsetPosition);
 
-		btncancelPosition.setBounds(900, 12, 100, 21);
+		btncancelPosition.setBounds(940, 12, 100, 21);
 		btncancelPosition.addActionListener(new ActionListener() {
 
 			@Override
@@ -439,6 +440,47 @@ public class Loginadmin extends JFrameEx implements Runnable {
 			}
 		});
 		pan5.add(mySerialPortconfig);
+		
+		btndeleteAllPosition.setBounds(230, 42, 200, 21);
+		btndeleteAllPosition.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				sql = "Drop table carport";
+				sql2="Drop table mycarport";
+				try {
+					result=statement.executeUpdate(sql);
+					result=statement.executeUpdate(sql2);
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				pan3.removeAll();
+				pan7.removeAll();
+				pan3.repaint();
+				pan7.repaint();
+				sql = "CREATE TABLE IF NOT EXISTS carport (id INT PRIMARY KEY AUTO_INCREMENT , port_id INT NOT NULL UNIQUE,portx INT,porty INT,theta DOUBLE)"
+						+ " ENGINE=InnoDB DEFAULT CHARSET=utf8 ";
+				try {
+					result = statement.executeUpdate(sql);
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+				sql = "CREATE TABLE IF NOT EXISTS mycarport (id INT PRIMARY KEY AUTO_INCREMENT , car_id VARCHAR(128),port_id INT NOT NULL UNIQUE)"
+						+ " ENGINE=InnoDB DEFAULT CHARSET=utf8 ";
+				try {
+					result = statement.executeUpdate(sql);
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+			}
+		});
+        pan5.add(btndeleteAllPosition);
 		/*
 		 * JLabel ported = new JLabel("\u8f66\u4f4d"); ported.setBounds(10, 42,
 		 * 58, 25); pan5.add(ported);
@@ -512,6 +554,8 @@ public class Loginadmin extends JFrameEx implements Runnable {
 		btnFileChooser.setBounds(10, 80, 170, 23);
 
 		pan5.add(btnFileChooser);
+		
+		
 
 		portMessageLabel.setBounds(0, 100, screenWidth / 8, screenHeight / 8);
 		portMessageLabel.setText("\u6b22\u8fce\u5149\u4e34");
